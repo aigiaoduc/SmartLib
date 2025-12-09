@@ -156,10 +156,13 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
     );
   }
 
+  // --- QUAN TRỌNG: Thêm kiểm tra này để TypeScript biết activeWorksheet chắc chắn tồn tại ---
+  if (!activeWorksheet) return null;
+
   // --- MÀN HÌNH LÀM BÀI ---
 
   const score = getScore();
-  const total = activeWorksheet?.questions.length || 0;
+  const total = activeWorksheet.questions.length;
   const percentage = Math.round((score / total) * 100);
 
   // Logic nội dung chúc mừng dựa trên điểm số
@@ -216,7 +219,7 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
         {/* Header */}
         <div className="bg-red-500 px-8 py-8 text-white relative overflow-hidden">
           <div className="relative z-10">
-            <h2 className="text-3xl md:text-4xl font-black font-heading">{activeWorksheet?.title}</h2>
+            <h2 className="text-3xl md:text-4xl font-black font-heading">{activeWorksheet.title}</h2>
             <p className="opacity-90 font-bold mt-2 flex items-center gap-2 text-lg font-body">
               <Star size={24} fill="currentColor" /> Cố gắng trả lời đúng hết nhé!
             </p>
@@ -303,7 +306,7 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
 
         {/* Questions List */}
         <div className="p-6 md:p-10 space-y-10">
-          {activeWorksheet?.questions.map((q, index) => {
+          {activeWorksheet.questions.map((q, index) => {
             const isCorrect = userAnswers[q.id]?.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
             const userAnswer = userAnswers[q.id];
             
