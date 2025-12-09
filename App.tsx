@@ -65,7 +65,7 @@ const App: React.FC = () => {
                     Chào mừng các bạn nhỏ đến với
                   </span>
                   {/* Title increased size + whitespace-nowrap to keep on one line */}
-                  <span className="block text-5xl md:text-7xl text-pink-600 drop-shadow-hard text-stroke-white py-1 font-extrabold tracking-tight leading-none whitespace-nowrap">
+                  <span className="block text-7xl md:text-8xl text-pink-600 drop-shadow-hard text-stroke-white py-1 font-extrabold tracking-tight leading-none whitespace-nowrap">
                     Thư viện số Capy
                   </span>
                 </h1>
@@ -84,7 +84,7 @@ const App: React.FC = () => {
                <img 
                  src={STICKERS.HERO_MASCOT} 
                  alt="Cute Capybara Mascot" 
-                 className="absolute bottom-[-20px] right-[-20px] md:right-4 w-44 md:w-[28rem] object-contain drop-shadow-2xl animate-[bounce_3s_infinite]"
+                 className="absolute bottom-[-20px] -right-8 md:-right-6 w-44 md:w-[28rem] object-contain drop-shadow-2xl animate-[bounce_3s_infinite]"
                />
 
                {/* Decor circles */}
