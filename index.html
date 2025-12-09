@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartLib - Khu Vườn Tri Thức</title>
+    <!-- Giữ Tailwind CDN theo yêu cầu giữ nguyên code hiện có, dù best practice là cài qua npm -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --font-heading: 'Baloo 2', cursive;
+        --font-body: 'Mali', cursive;
+      }
+      body {
+        font-family: var(--font-body);
+        background-color: #F0F9FF; /* Sky-50: Tone lạnh nhẹ nhàng */
+        background-image: radial-gradient(#BAE6FD 2px, transparent 2px); /* Sky-200: Họa tiết xanh nhẹ */
+        background-size: 24px 24px;
+      }
+      
+      h1, h2, h3, h4, h5, h6, button, .font-heading {
+        font-family: var(--font-heading);
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #F0F9FF;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #38BDF8; /* Sky-400 */
+        border-radius: 10px;
+        border: 2px solid #F0F9FF;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #0EA5E9;
+      }
+      .blob-shape {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      }
+      
+      /* Text stroke effect for Game/Cartoon look */
+      /* paint-order: stroke fill; ensures the stroke is behind the text so it doesn't make letters thin */
+      .text-stroke-white {
+        -webkit-text-stroke: 8px white;
+        paint-order: stroke fill;
+      }
+      .text-stroke-sm-white {
+        -webkit-text-stroke: 4px white;
+        paint-order: stroke fill;
+      }
+      .drop-shadow-hard {
+        filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.15));
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
+    "vite": "https://aistudiocdn.com/vite@^7.2.7",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.2"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="text-gray-800 antialiased overflow-hidden">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
