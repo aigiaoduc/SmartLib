@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { ViewState } from '../types';
-import { BookOpen, Video, MonitorPlay, FileQuestion, MessageSquareText, Home } from 'lucide-react';
+import { BookOpen, Video, MonitorPlay, FileQuestion, MessageSquareText, Home, FileText } from 'lucide-react';
 import { STICKERS } from '../constants';
 
 interface SidebarProps {
@@ -17,6 +18,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, toggleS
     { id: ViewState.EBOOKS, label: 'Đọc Sách', icon: <BookOpen size={28} strokeWidth={2.5} />, color: 'text-green-500', bg: 'bg-green-100', hover: 'hover:bg-green-200' },
     { id: ViewState.LECTURES, label: 'Bài Giảng', icon: <MonitorPlay size={28} strokeWidth={2.5} />, color: 'text-purple-500', bg: 'bg-purple-100', hover: 'hover:bg-purple-200' },
     { id: ViewState.WORKSHEETS, label: 'Bài Tập', icon: <FileQuestion size={28} strokeWidth={2.5} />, color: 'text-red-500', bg: 'bg-red-100', hover: 'hover:bg-red-200' },
+    { id: ViewState.DOCUMENTS, label: 'Tài Liệu', icon: <FileText size={28} strokeWidth={2.5} />, color: 'text-teal-600', bg: 'bg-teal-100', hover: 'hover:bg-teal-200' }, // New Item
     { id: ViewState.CHATBOT, label: 'Capy Thông Thái', icon: <MessageSquareText size={28} strokeWidth={2.5} />, color: 'text-yellow-500', bg: 'bg-yellow-100', hover: 'hover:bg-yellow-200' },
   ];
 

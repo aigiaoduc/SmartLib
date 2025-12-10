@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ResourceGrid from './components/ResourceGrid';
 import WorksheetView from './components/WorksheetView';
 import Chatbot from './components/Chatbot';
 import { ViewState, ResourceItem, Worksheet } from './types';
-import { SHEET_URLS, MOCK_VIDEOS, MOCK_EBOOKS, MOCK_LECTURES, MOCK_WORKSHEETS, STICKERS, AUDIO_CLIPS } from './constants';
+import { SHEET_URLS, MOCK_VIDEOS, MOCK_EBOOKS, MOCK_LECTURES, MOCK_WORKSHEETS, MOCK_DOCUMENTS, STICKERS, AUDIO_CLIPS } from './constants';
 import { fetchSheetData, fetchWorksheetData } from './services/dataService';
 import { Menu, Star, Music, BookOpen, Bot, Volume2 } from 'lucide-react';
 
@@ -14,6 +15,7 @@ const App: React.FC = () => {
   const [videos, setVideos] = useState<ResourceItem[]>(MOCK_VIDEOS);
   const [books, setBooks] = useState<ResourceItem[]>(MOCK_EBOOKS);
   const [lectures, setLectures] = useState<ResourceItem[]>(MOCK_LECTURES);
+  const [documents, setDocuments] = useState<ResourceItem[]>(MOCK_DOCUMENTS); // State cho Documents
   const [worksheets, setWorksheets] = useState<Worksheet[]>(MOCK_WORKSHEETS);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -22,11 +24,13 @@ const App: React.FC = () => {
       const fetchedVideos = await fetchSheetData(SHEET_URLS.VIDEOS, MOCK_VIDEOS);
       const fetchedBooks = await fetchSheetData(SHEET_URLS.EBOOKS, MOCK_EBOOKS);
       const fetchedLectures = await fetchSheetData(SHEET_URLS.LECTURES, MOCK_LECTURES);
+      const fetchedDocuments = await fetchSheetData(SHEET_URLS.DOCUMENTS, MOCK_DOCUMENTS); // Fetch Documents
       const fetchedWorksheets = await fetchWorksheetData(SHEET_URLS.WORKSHEETS, MOCK_WORKSHEETS);
       
       setVideos(fetchedVideos);
       setBooks(fetchedBooks);
       setLectures(fetchedLectures);
+      setDocuments(fetchedDocuments);
       setWorksheets(fetchedWorksheets);
     };
     loadData();
@@ -166,6 +170,8 @@ const App: React.FC = () => {
         return <ResourceGrid title="Tủ Sách Thần Kỳ" items={books} type="book" />;
       case ViewState.LECTURES:
         return <ResourceGrid title="Lớp Học Vui Vẻ" items={lectures} type="lecture" />;
+      case ViewState.DOCUMENTS: // Render View Documents
+        return <ResourceGrid title="Kho Tài Liệu Vàng" items={documents} type="document" />;
       case ViewState.WORKSHEETS:
         return <WorksheetView worksheets={worksheets} />;
       case ViewState.CHATBOT:

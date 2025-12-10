@@ -6,7 +6,8 @@ import { ResourceItem, Worksheet, Question } from '../types';
  */
 export async function fetchSheetData(url: string, mockData: ResourceItem[]): Promise<ResourceItem[]> {
   // Check if URL is placeholder
-  if (!url || url.includes('YOUR_PUBLISHED')) {
+  // Thêm kiểm tra 'YOUR_NEW_SHEET_URL' để khớp với placeholder trong constants.ts
+  if (!url || url.includes('YOUR_PUBLISHED') || url.includes('YOUR_NEW_SHEET_URL') || url.includes('...')) {
     // console.warn("Using mock data because URL is not configured.");
     return mockData;
   }
@@ -30,7 +31,8 @@ export async function fetchSheetData(url: string, mockData: ResourceItem[]): Pro
  * Parses rows into grouped Worksheets with Questions.
  */
 export async function fetchWorksheetData(url: string, mockData: Worksheet[]): Promise<Worksheet[]> {
-  if (!url || url.includes('YOUR_PUBLISHED')) {
+  // Check if URL is placeholder
+  if (!url || url.includes('YOUR_PUBLISHED') || url.includes('YOUR_NEW_SHEET_URL') || url.includes('...')) {
     return mockData;
   }
 

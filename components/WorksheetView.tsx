@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Worksheet } from '../types';
 import { CheckCircle2, XCircle, ChevronRight, RefreshCw, Trophy, Star, ArrowLeft, Eye, X, Home } from 'lucide-react';
@@ -12,6 +13,7 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
+  const [isPlayingHeaderAudio, setIsPlayingHeaderAudio] = useState(false);
   
   // Ref để quản lý audio, giúp dừng nhạc khi đóng modal
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -87,6 +89,22 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
     return correct;
   };
 
+  const handlePlayHeaderAudio = () => {
+    if (isPlayingHeaderAudio) return;
+
+    setIsPlayingHeaderAudio(true);
+    const audio = new Audio(AUDIO_CLIPS.SECTION_WORKSHEET);
+    
+    audio.onended = () => {
+      setIsPlayingHeaderAudio(false);
+    };
+
+    audio.play().catch(e => {
+        console.error("Play header audio failed", e);
+        setIsPlayingHeaderAudio(false);
+    });
+  }
+
   // Màn hình danh sách bài tập (Chưa chọn bài)
   if (!selectedWorksheetId) {
     return (
@@ -109,14 +127,22 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
            </div>
 
            {/* Worksheet Sticker */}
-           <div className="mt-2 md:mt-0 relative z-20 md:-ml-4 flex-shrink-0">
+           <div 
+             className="mt-2 md:mt-0 relative z-20 md:-ml-4 flex-shrink-0 group cursor-pointer"
+             onClick={handlePlayHeaderAudio}
+           >
              <img 
                src={STICKERS.WORKSHEET_SUCCESS} 
-               className="w-32 md:w-40 drop-shadow-2xl transform hover:scale-110 transition-transform duration-500 animate-[bounce_3s_infinite]" 
+               className={`w-32 md:w-40 drop-shadow-2xl transition-transform duration-500 ${isPlayingHeaderAudio ? 'scale-125 animate-[bounce_0.5s_infinite]' : 'hover:scale-110 animate-[bounce_3s_infinite]'}`} 
                alt="Worksheet Decor" 
                style={{ marginBottom: '-25px' }} 
              />
              <div className="absolute bottom-[-15px] right-2 w-3/4 h-3 bg-black/10 rounded-[100%] blur-md"></div>
+             
+             {/* Hint */}
+             <div className={`absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-red-600 text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap transition-opacity duration-300 pointer-events-none border border-red-200 ${isPlayingHeaderAudio ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                {isPlayingHeaderAudio ? 'Cố lên nha! 🏆' : 'Bấm vào tớ nè!'}
+             </div>
            </div>
         </div>
         

@@ -1,23 +1,25 @@
+
 import React, { useState } from 'react';
 import { ResourceItem } from '../types';
-import { Play, BookOpen, Download, ExternalLink, Smile, Star, Filter, MonitorPlay } from 'lucide-react';
-import { STICKERS } from '../constants';
+import { Play, BookOpen, Download, ExternalLink, Smile, Star, Filter, MonitorPlay, FileText, Volume2 } from 'lucide-react';
+import { STICKERS, AUDIO_CLIPS } from '../constants';
 
 interface ResourceGridProps {
   title: string;
   items: ResourceItem[];
-  type: 'video' | 'book' | 'lecture';
+  type: 'video' | 'book' | 'lecture' | 'document';
 }
 
 const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
-  // State để lưu tab lớp đang chọn. 'all' là hiển thị tất cả.
   const [activeTab, setActiveTab] = useState<string>('all');
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const getIcon = () => {
     switch (type) {
       case 'video': return <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />;
       case 'book': return <BookOpen className="w-8 h-8 text-white" />;
-      case 'lecture': return <Download className="w-8 h-8 text-white" />;
+      case 'lecture': return <MonitorPlay className="w-8 h-8 text-white" />;
+      case 'document': return <FileText className="w-8 h-8 text-white" />;
     }
   };
 
@@ -26,6 +28,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'video': return 'blue';
       case 'book': return 'green';
       case 'lecture': return 'purple';
+      case 'document': return 'teal';
       default: return 'gray';
     }
   };
@@ -35,8 +38,36 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'video': return STICKERS.VIDEO_DECOR;
       case 'book': return STICKERS.BOOK_DECOR;
       case 'lecture': return STICKERS.LECTURE_DECOR;
+      case 'document': return STICKERS.DOC_DECOR;
       default: return null;
     }
+  }
+
+  const getAudioClip = () => {
+    switch (type) {
+      case 'video': return AUDIO_CLIPS.SECTION_VIDEO;
+      case 'book': return AUDIO_CLIPS.SECTION_BOOK;
+      case 'lecture': return AUDIO_CLIPS.SECTION_LECTURE;
+      case 'document': return AUDIO_CLIPS.SECTION_DOCUMENT;
+      default: return null;
+    }
+  }
+
+  const handlePlayAudio = () => {
+    const audioUrl = getAudioClip();
+    if (!audioUrl || isPlaying) return;
+
+    setIsPlaying(true);
+    const audio = new Audio(audioUrl);
+    
+    audio.onended = () => {
+      setIsPlaying(false);
+    };
+
+    audio.play().catch(err => {
+      console.error("Audio play failed:", err);
+      setIsPlaying(false);
+    });
   }
 
   const theme = getThemeColor();
@@ -47,6 +78,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'video': return 'Xem ngay';
       case 'book': return 'Đọc luôn';
       case 'lecture': return 'Xem bài giảng'; 
+      case 'document': return 'Tải tài liệu';
     }
   };
 
@@ -87,6 +119,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
         switch (type) {
             case 'book': return 'bg-[#A7F3D0]'; // Green-200
             case 'lecture': return 'bg-[#E9D5FF]'; // Purple-200
+            case 'document': return 'bg-[#99F6E4]'; // Teal-200
             default: return 'bg-[#BFDBFE]'; // Blue-200
         }
     };
@@ -133,6 +166,17 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
              <span className="mt-2 block text-blue-800 font-black text-xs uppercase tracking-wide font-heading">Video</span>
           </div>
         )}
+
+        {type === 'document' && (
+          <div className="relative z-10 transform group-hover:scale-110 transition-transform duration-300">
+             {/* File hoạt hình */}
+             <div className="w-16 h-20 bg-teal-500 rounded-lg shadow-lg border-4 border-teal-200 relative flex items-center justify-center">
+                 <div className="absolute top-0 right-0 w-6 h-6 bg-teal-200 rounded-bl-lg"></div>
+                 <FileText className="text-white" size={32} />
+             </div>
+             <span className="mt-2 block text-teal-800 font-black text-xs uppercase tracking-wide font-heading">Tài liệu</span>
+          </div>
+        )}
       </div>
     );
 
@@ -165,7 +209,10 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
 
         <div className="flex items-center gap-4 relative z-10">
           <div className={`p-4 rounded-[1.5rem] bg-${theme}-100 text-${theme}-500 shadow-sm border-4 border-white ring-4 ring-${theme}-50`}>
-             {type === 'book' ? <BookOpen size={32} strokeWidth={2.5} /> : type === 'video' ? <Play size={32} strokeWidth={2.5} /> : <Download size={32} strokeWidth={2.5} />}
+             {type === 'book' ? <BookOpen size={32} strokeWidth={2.5} /> : 
+              type === 'video' ? <Play size={32} strokeWidth={2.5} /> : 
+              type === 'document' ? <FileText size={32} strokeWidth={2.5} /> :
+              <MonitorPlay size={32} strokeWidth={2.5} />}
           </div>
           
           <div className="whitespace-nowrap">
@@ -177,14 +224,22 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
         </div>
 
         {headerSticker && (
-           <div className="mt-2 md:mt-0 relative z-20 md:-ml-4 flex-shrink-0">
+           <div 
+             className="mt-2 md:mt-0 relative z-20 md:-ml-4 flex-shrink-0 group cursor-pointer" 
+             onClick={handlePlayAudio}
+           >
              <img 
                src={headerSticker} 
-               className="w-32 md:w-40 drop-shadow-2xl transform hover:scale-110 transition-transform duration-500 animate-[bounce_3s_infinite]" 
+               className={`w-32 md:w-40 drop-shadow-2xl transition-transform duration-500 ${isPlaying ? 'scale-125 animate-[bounce_0.5s_infinite]' : 'hover:scale-110 animate-[bounce_3s_infinite]'} ${type === 'document' ? 'rotate-12' : ''}`} 
                alt="Decor" 
                style={{ marginBottom: '-25px' }} 
              />
              <div className="absolute bottom-[-15px] right-2 w-3/4 h-3 bg-black/10 rounded-[100%] blur-md"></div>
+             
+             {/* Hint Tooltip on hover/playing */}
+             <div className={`absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-${theme}-600 text-xs font-bold px-2 py-1 rounded-lg shadow-md whitespace-nowrap transition-opacity duration-300 pointer-events-none border border-${theme}-200 ${isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                {isPlaying ? 'Đang nói... 🔊' : 'Bấm vào tớ nè!'}
+             </div>
            </div>
         )}
       </div>
@@ -213,7 +268,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       {/* Grid Content */}
       {filteredItems.length > 0 ? (
         <div className={`grid gap-6 ${
-          type === 'book' 
+          type === 'book' || type === 'document'
             ? 'grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6' 
             : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
         }`}>
@@ -222,7 +277,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
               
               {/* Hình ảnh */}
               <div 
-                className={`relative ${type === 'book' ? 'aspect-[3/4]' : 'aspect-video'} overflow-hidden bg-gray-100 cursor-pointer rounded-t-[1.7rem] m-1.5 mb-0 border-b-2 border-gray-100`}
+                className={`relative ${type === 'book' || type === 'document' ? 'aspect-[3/4]' : 'aspect-video'} overflow-hidden bg-gray-100 cursor-pointer rounded-t-[1.7rem] m-1.5 mb-0 border-b-2 border-gray-100`}
                 onClick={() => handleItemClick(item)}
               >
                 {renderThumbnail(item)}
@@ -264,7 +319,11 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
                     className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-black transition-all transform active:scale-95 font-heading shadow-[0_3px_0_rgb(0,0,0,0.1)] active:shadow-none active:translate-y-0.5 ${
                       type === 'book' 
                         ? 'bg-green-100 text-green-600 hover:bg-green-500 hover:text-white' 
-                        : 'bg-blue-100 text-blue-600 hover:bg-blue-500 hover:text-white'
+                        : type === 'document'
+                          ? 'bg-teal-100 text-teal-600 hover:bg-teal-500 hover:text-white'
+                          : type === 'lecture'
+                             ? 'bg-purple-100 text-purple-600 hover:bg-purple-500 hover:text-white'
+                             : 'bg-blue-100 text-blue-600 hover:bg-blue-500 hover:text-white'
                     }`}
                   >
                     {getButtonText()}

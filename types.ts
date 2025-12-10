@@ -1,3 +1,4 @@
+
 export interface ResourceItem {
   id: string;
   title: string;
@@ -17,6 +18,7 @@ export enum ViewState {
   EBOOKS = 'EBOOKS',
   LECTURES = 'LECTURES',
   WORKSHEETS = 'WORKSHEETS',
+  DOCUMENTS = 'DOCUMENTS', // New Feature
   CHATBOT = 'CHATBOT',
 }
 

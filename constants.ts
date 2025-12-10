@@ -1,3 +1,4 @@
+
 import { ResourceItem, Worksheet } from './types';
 
 // ==============================================================================
@@ -15,6 +16,8 @@ export const SHEET_URLS = {
   LECTURES: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQTTpsz1nKFzIYq0Y7aBsMkn4qyjUVvMwIT_UI4UhY63qIe2DnP9Z1P1QOPHs2VbKZTBopJPCQxHdgz/pub?output=tsv', 
 
   WORKSHEETS: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT4h_9ipPcogvKU-134drfXZQAglTMS2hloPpahvMBl9QGQhOsyN68U3VaD_tPUEAjaQArT6b8g7336/pub?output=tsv',
+
+  DOCUMENTS: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEXFDhqKsHxs7U_-giJJ4CChaG8RCML9o-75NsN6AFrXqP9LGq6mFqW5kKNmSYbgUiYHJ2r4T1EX-J/pub?output=tsv', // Đã cập nhật link thật
 };
 
 export const STICKERS = {
@@ -25,12 +28,20 @@ export const STICKERS = {
   VIDEO_DECOR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765035739/2_e5wgfq.png', // Video
   BOOK_DECOR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765035740/3_r2dn7v.png', // Đọc sách
   LECTURE_DECOR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765035740/4_srjptt.png', // Bài giảng
+  DOC_DECOR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765035740/3_r2dn7v.png', // Tài liệu (Dùng tạm ảnh sách nhưng sẽ xoay trong CSS)
   HOME_TALKING_MASCOT: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765107578/Thi%E1%BA%BFt_k%E1%BA%BF_ch%C6%B0a_c%C3%B3_t%C3%AAn_4_cbfgnw.png' // Nhân vật nói ở trang chủ
 };
 
 export const AUDIO_CLIPS = {
   HOME_WELCOME: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765112148/mp3-output-ttsfree_dot_com_1_ykcfy7.mp3',
-  WORKSHEET_CONGRATS: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1744012397/nhac_nen_trao_giai_thuong-www_tiengdong_com_ln6vu6.mp3'
+  WORKSHEET_CONGRATS: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1744012397/nhac_nen_trao_giai_thuong-www_tiengdong_com_ln6vu6.mp3',
+  // New Section Audios
+  SECTION_VIDEO: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368742/muc_video_dagqnx.mp3',
+  SECTION_BOOK: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368743/muc_doc_sach_gi1p5z.mp3',
+  SECTION_LECTURE: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765369142/muc_bai_giang_j14v9h.mp3',
+  SECTION_WORKSHEET: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765369714/bai_tap_retvja.mp3',
+  SECTION_DOCUMENT: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368948/muc_tai_lieu_jsfji4.mp3',
+  SECTION_CHATBOT: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368923/muc_chatbot_o0toz6.mp3',
 };
 
 // Mock data to display if sheet fetch fails or for initial demo
@@ -110,6 +121,39 @@ export const MOCK_LECTURES: ResourceItem[] = [
     author: 'Thầy Hùng',
     date: '2023-11-20',
     grade: '5'
+  }
+];
+
+export const MOCK_DOCUMENTS: ResourceItem[] = [
+  {
+    id: 'doc1',
+    title: 'Đề cương ôn tập Toán Giữa Kỳ 1',
+    description: 'Tổng hợp các dạng bài toán cơ bản và nâng cao.',
+    thumbnailUrl: '', 
+    linkUrl: '#',
+    author: 'Tổ Toán',
+    category: 'Đề cương',
+    grade: '4'
+  },
+  {
+    id: 'doc2',
+    title: 'Phiếu luyện viết chữ đẹp',
+    description: 'File PDF mẫu chữ nét thanh nét đậm.',
+    thumbnailUrl: '',
+    linkUrl: '#',
+    author: 'Cô Hoa',
+    category: 'Luyện chữ',
+    grade: '1'
+  },
+  {
+    id: 'doc3',
+    title: 'Tổng hợp từ vựng Tiếng Anh Unit 1-5',
+    description: 'Flashcard và danh sách từ mới.',
+    thumbnailUrl: '',
+    linkUrl: '#',
+    author: 'Mr. John',
+    category: 'Tiếng Anh',
+    grade: '3'
   }
 ];
 

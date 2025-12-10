@@ -1,8 +1,17 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, User, Sparkles, Clock, Hourglass } from 'lucide-react';
+import { Send, User, Sparkles, Clock, Hourglass, Mic, MicOff, Volume2 } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { sendMessageToCapy } from '../services/geminiService';
-import { STICKERS } from '../constants';
+import { STICKERS, AUDIO_CLIPS } from '../constants';
+
+// Mở rộng Window interface để hỗ trợ Web Speech API trong TypeScript
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -16,7 +25,12 @@ const Chatbot: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0); // Biến đếm ngược (giây)
+  const [isListening, setIsListening] = useState(false); // Trạng thái đang nghe
+  const [isPlayingAvatarAudio, setIsPlayingAvatarAudio] = useState(false); // Trạng thái avatar nói (Header)
+  const [isPlayingMascotAudio, setIsPlayingMascotAudio] = useState(false); // Trạng thái mascot nói (Bottom right)
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -36,6 +50,52 @@ const Chatbot: React.FC = () => {
     }
     return () => clearInterval(interval);
   }, [cooldown]);
+
+  // Khởi tạo Speech Recognition
+  useEffect(() => {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false; // Dừng sau khi nói xong 1 câu
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'vi-VN'; // Ngôn ngữ Tiếng Việt
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInputText((prev) => (prev ? prev + ' ' + transcript : transcript));
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (isLoading || cooldown > 0) return;
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+          setIsListening(true);
+        } catch (error) {
+          console.error("Microphone start failed:", error);
+        }
+      } else {
+        alert("Trình duyệt của bạn chưa hỗ trợ giọng nói. Hãy thử dùng Chrome nhé! 🎤");
+      }
+    }
+  };
 
   const handleSend = async () => {
     // Kiểm tra thêm điều kiện cooldown
@@ -83,14 +143,59 @@ const Chatbot: React.FC = () => {
     }
   };
 
+  const handlePlayAvatarAudio = () => {
+    if (isPlayingAvatarAudio) return;
+
+    setIsPlayingAvatarAudio(true);
+    const audio = new Audio(AUDIO_CLIPS.SECTION_CHATBOT);
+    
+    audio.onended = () => {
+      setIsPlayingAvatarAudio(false);
+    };
+
+    audio.play().catch(e => {
+        console.error("Play avatar audio failed", e);
+        setIsPlayingAvatarAudio(false);
+    });
+  }
+
+  const handlePlayMascotAudio = () => {
+    if (isPlayingMascotAudio) return;
+
+    setIsPlayingMascotAudio(true);
+    const audio = new Audio(AUDIO_CLIPS.SECTION_CHATBOT);
+    
+    audio.onended = () => {
+      setIsPlayingMascotAudio(false);
+    };
+
+    audio.play().catch(e => {
+        console.error("Play mascot audio failed", e);
+        setIsPlayingMascotAudio(false);
+    });
+  }
+
   return (
-    <div className="h-[calc(100vh-6rem)] md:h-[calc(100vh-4rem)] flex flex-col max-w-4xl mx-auto p-4">
+    <div className="h-[calc(100vh-6rem)] md:h-[calc(100vh-4rem)] flex flex-col max-w-4xl mx-auto p-4 relative">
       <div className="bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden flex flex-col flex-1 ring-4 ring-orange-100">
         {/* Header */}
         <div className="bg-orange-400 p-4 md:p-6 flex items-center shadow-sm z-10 relative">
-           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4 border-4 border-orange-300 overflow-hidden relative">
-             <img src={STICKERS.CHAT_BOT} alt="Capy Avatar" className="w-full h-full object-cover p-1" />
+           <div 
+             className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4 border-4 border-orange-300 overflow-hidden relative cursor-pointer group"
+             onClick={handlePlayAvatarAudio}
+           >
+             <img 
+               src={STICKERS.CHAT_BOT} 
+               alt="Capy Avatar" 
+               className={`w-full h-full object-cover p-1 transition-transform duration-300 ${isPlayingAvatarAudio ? 'scale-110 animate-[bounce_0.3s_infinite]' : 'group-hover:scale-110'}`} 
+             />
+             
+             {/* Hint Tooltip */}
+             <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white text-orange-600 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-md whitespace-nowrap transition-opacity duration-300 pointer-events-none border border-orange-200 w-max z-20 ${isPlayingAvatarAudio ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                {isPlayingAvatarAudio ? 'Đang nói... 🔊' : 'Chào cậu! 👋'}
+             </div>
            </div>
+           
            <div>
              <h2 className="text-white font-black text-2xl font-heading">Capy Thông Thái</h2>
              <p className="text-orange-100 text-sm font-bold opacity-90 flex items-center gap-1 font-body">
@@ -144,21 +249,29 @@ const Chatbot: React.FC = () => {
         {/* Input Area */}
         <div className="p-4 md:p-6 bg-white border-t-2 border-gray-100">
           <div className="relative flex items-center">
+            {/* Input Field */}
             <input
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              disabled={cooldown > 0 || isLoading} // Khóa ô nhập liệu khi đang đếm ngược
-              placeholder={cooldown > 0 ? "Capy đang nghỉ ngơi xíu..." : "Nhập câu hỏi cho Capy..."}
-              className={`w-full pl-6 pr-20 py-4 border-2 rounded-full font-bold text-lg font-body transition-all ${
-                cooldown > 0 
-                  ? 'bg-gray-50 border-gray-200 text-gray-400 placeholder-gray-300 cursor-not-allowed' 
-                  : 'bg-gray-100 border-transparent text-gray-600 placeholder-gray-400 focus:bg-white focus:border-orange-300 focus:outline-none'
+              disabled={cooldown > 0 || isLoading || isListening} 
+              placeholder={
+                isListening 
+                  ? "Đang nghe bé nói..." 
+                  : (cooldown > 0 ? "Capy đang nghỉ ngơi xíu..." : "Nhập câu hỏi hoặc bấm micro...")
+              }
+              className={`w-full pl-6 pr-32 py-4 border-2 rounded-full font-bold text-lg font-body transition-all ${
+                isListening
+                  ? 'bg-green-50 border-green-300 text-green-700 placeholder-green-500'
+                  : (cooldown > 0 
+                      ? 'bg-gray-50 border-gray-200 text-gray-400 placeholder-gray-300 cursor-not-allowed' 
+                      : 'bg-gray-100 border-transparent text-gray-600 placeholder-gray-400 focus:bg-white focus:border-orange-300 focus:outline-none'
+                    )
               }`}
             />
             
-            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
               {cooldown > 0 ? (
                 // --- ĐỒNG HỒ ĐẾM NGƯỢC ---
                 <div className="flex items-center justify-center gap-1 bg-gray-200 text-gray-500 px-4 py-2 rounded-full font-black font-heading animate-pulse select-none cursor-not-allowed h-[46px] min-w-[100px]">
@@ -166,29 +279,87 @@ const Chatbot: React.FC = () => {
                    <span>{cooldown}s</span>
                 </div>
               ) : (
-                // --- NÚT GỬI ---
-                <button
-                  onClick={handleSend}
-                  disabled={isLoading || !inputText.trim()}
-                  className={`p-3 rounded-full transition-all transform h-[46px] w-[46px] flex items-center justify-center ${
-                    isLoading || !inputText.trim() 
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                      : 'bg-orange-500 text-white hover:bg-orange-600 hover:scale-110 shadow-md active:scale-95'
-                  }`}
-                >
-                  <Send size={22} strokeWidth={2.5} />
-                </button>
+                <>
+                  {/* --- NÚT MICROPHONE (VOICE) --- */}
+                  <button
+                    onClick={toggleListening}
+                    disabled={isLoading}
+                    className={`p-3 rounded-full transition-all transform h-[46px] w-[46px] flex items-center justify-center relative ${
+                      isListening
+                        ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.6)] animate-pulse scale-110'
+                        : 'bg-blue-100 text-blue-500 hover:bg-blue-200 hover:scale-105 active:scale-95'
+                    }`}
+                    title="Nói chuyện với Capy"
+                  >
+                     {isListening ? (
+                       <>
+                         <span className="absolute w-full h-full rounded-full border-4 border-red-300 animate-ping opacity-75"></span>
+                         <MicOff size={22} strokeWidth={2.5} />
+                       </>
+                     ) : (
+                       <Mic size={22} strokeWidth={2.5} />
+                     )}
+                  </button>
+
+                  {/* --- NÚT GỬI --- */}
+                  <button
+                    onClick={handleSend}
+                    disabled={isLoading || (!inputText.trim() && !isListening)}
+                    className={`p-3 rounded-full transition-all transform h-[46px] w-[46px] flex items-center justify-center ${
+                      isLoading || (!inputText.trim() && !isListening)
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                        : 'bg-orange-500 text-white hover:bg-orange-600 hover:scale-110 shadow-md active:scale-95'
+                    }`}
+                  >
+                    <Send size={22} strokeWidth={2.5} />
+                  </button>
+                </>
               )}
             </div>
           </div>
-          <p className="text-center text-sm font-bold text-gray-400 mt-3 font-body flex items-center justify-center gap-1">
-             {cooldown > 0 ? (
-                <>⏳ Capy cần nghỉ ngơi một chút để nạp năng lượng cam! 🍊</>
-             ) : (
-                <>Capy cũng đang học nên đôi khi có thể nhầm lẫn xíu nhé! 🍊</>
-             )}
-          </p>
+          
+          {/* Status Text */}
+          <div className="min-h-[24px] mt-3">
+             <p className={`text-center text-sm font-bold font-body flex items-center justify-center gap-1 transition-colors ${isListening ? 'text-green-600 animate-pulse' : 'text-gray-400'}`}>
+               {isListening ? (
+                 <>🎙️ Capy đang vểnh tai nghe nè... Bé nói đi!</>
+               ) : (
+                 cooldown > 0 ? (
+                    <>⏳ Capy cần nghỉ ngơi một chút để nạp năng lượng cam! 🍊</>
+                 ) : (
+                    <>Capy cũng đang học nên đôi khi có thể nhầm lẫn xíu nhé! 🍊</>
+                 )
+               )}
+             </p>
+          </div>
         </div>
+      </div>
+
+      {/* --- TALKING MASCOT (Fixed Bottom Right) --- */}
+      <div 
+        className="fixed bottom-6 right-6 z-40 cursor-pointer group flex flex-col items-end"
+        onClick={handlePlayMascotAudio}
+      >
+         {/* Speech Bubble Hint */}
+         <div className={`bg-white text-orange-600 px-4 py-2 rounded-2xl rounded-br-none shadow-lg border-2 border-orange-200 font-heading font-extrabold mb-2 mr-4 transition-all duration-300 transform ${isPlayingMascotAudio ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 origin-bottom-right'}`}>
+            {isPlayingMascotAudio ? 'Đang nói nè... 🔊' : 'Bấm vào tớ đi! 👋'}
+         </div>
+
+         <div className="relative">
+           {/* Mascot Image - Sử dụng cùng hình nhân vật như trang chủ */}
+           <img 
+             src={STICKERS.HOME_TALKING_MASCOT} 
+             alt="Talking Mascot" 
+             className={`w-28 md:w-36 drop-shadow-2xl transition-transform duration-300 ${isPlayingMascotAudio ? 'animate-[bounce_0.5s_infinite] scale-110' : 'group-hover:scale-110 group-hover:-rotate-3'}`}
+           />
+           
+           {/* Sound Wave Animation (When Playing) */}
+           {isPlayingMascotAudio && (
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 bg-white rounded-full p-1.5 shadow-md animate-pulse">
+                 <Volume2 size={20} className="text-orange-500" />
+              </div>
+           )}
+         </div>
       </div>
     </div>
   );
