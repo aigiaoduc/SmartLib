@@ -44,6 +44,11 @@ export const AUDIO_CLIPS = {
   SECTION_CHATBOT: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368923/muc_chatbot_o0toz6.mp3',
 };
 
+export const AUTHOR_INFO = {
+  AVATAR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765942021/594524084_746040141238596_6529628961764471954_n_bcl8qw.jpg',
+  QR_CODE: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765942048/qr-code-with-frame_grfj6d.png'
+};
+
 // Mock data to display if sheet fetch fails or for initial demo
 export const MOCK_VIDEOS: ResourceItem[] = [
   {

@@ -5,9 +5,9 @@ import ResourceGrid from './components/ResourceGrid';
 import WorksheetView from './components/WorksheetView';
 import Chatbot from './components/Chatbot';
 import { ViewState, ResourceItem, Worksheet } from './types';
-import { SHEET_URLS, MOCK_VIDEOS, MOCK_EBOOKS, MOCK_LECTURES, MOCK_WORKSHEETS, MOCK_DOCUMENTS, STICKERS, AUDIO_CLIPS } from './constants';
+import { SHEET_URLS, MOCK_VIDEOS, MOCK_EBOOKS, MOCK_LECTURES, MOCK_WORKSHEETS, MOCK_DOCUMENTS, STICKERS, AUDIO_CLIPS, AUTHOR_INFO } from './constants';
 import { fetchSheetData, fetchWorksheetData } from './services/dataService';
-import { Menu, Star, Music, BookOpen, Bot, Volume2 } from 'lucide-react';
+import { Menu, Star, Music, BookOpen, Bot, Volume2, MapPin, Mail, Phone, School } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>(ViewState.HOME);
@@ -56,7 +56,7 @@ const App: React.FC = () => {
     switch (currentView) {
       case ViewState.HOME:
         return (
-          <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-4 pb-20 relative">
+          <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-4 pb-32 relative">
             {/* Hero Banner - Big Text & Balanced Capy Version */}
             {/* Giữ nguyên màu nóng (Gradient Vàng-Cam) để tương phản mạnh với nền xanh lạnh */}
             <div className="bg-gradient-to-br from-yellow-300 to-orange-400 rounded-[2rem] p-5 md:p-8 text-white shadow-[0_6px_0_rgb(234,88,12)] relative overflow-hidden border-4 border-white transform hover:scale-[1.005] transition-transform group">
@@ -132,6 +132,63 @@ const App: React.FC = () => {
                       <h3 className="text-lg md:text-xl mb-1 text-purple-500 font-heading font-extrabold">Capy Thông Thái</h3>
                       <p className="text-purple-400 font-bold text-sm md:text-base leading-snug">Hỏi đáp mọi thứ trên đời cùng Capy.</p>
                    </div>
+               </div>
+            </div>
+
+            {/* Author Information Section */}
+            <div className="mt-8 bg-white rounded-[2rem] p-6 md:p-8 shadow-lg border-4 border-orange-100 relative overflow-hidden">
+               {/* Decorative Gradient Bar */}
+               <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-orange-300 via-pink-300 to-purple-300"></div>
+               
+               <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                 {/* 1. Author Image */}
+                 <div className="shrink-0 relative group">
+                   <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-orange-200 overflow-hidden shadow-md transform transition-transform group-hover:scale-105 group-hover:rotate-2">
+                      <img 
+                        src={AUTHOR_INFO.AVATAR} 
+                        alt="Tác giả" 
+                        className="w-full h-full object-cover"
+                      />
+                   </div>
+                   <div className="absolute bottom-0 right-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-white shadow-sm font-heading">
+                      Tác giả
+                   </div>
+                 </div>
+
+                 {/* 2. Text Info */}
+                 <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left space-y-2">
+                    <h3 className="font-heading text-2xl md:text-3xl text-orange-600 font-black tracking-wide mb-1">
+                       Cô Nguyễn Thị Ngọc Hà
+                    </h3>
+                    <div className="space-y-1.5 text-gray-600 font-body font-bold text-sm md:text-base">
+                       <div className="flex items-center gap-2 justify-center md:justify-start">
+                          <School size={18} className="text-blue-500 shrink-0" />
+                          <span>Giáo viên trường Tiểu học Nguyễn Khắc Nhu</span>
+                       </div>
+                       <div className="flex items-center gap-2 justify-center md:justify-start">
+                          <MapPin size={18} className="text-red-500 shrink-0" />
+                          <span>TDP Yên Khê - Phường Tiền Phong - Tỉnh Bắc Ninh</span>
+                       </div>
+                       <div className="flex items-center gap-2 justify-center md:justify-start">
+                          <Mail size={18} className="text-yellow-500 shrink-0" />
+                          <span>ngochaanbg96@gmail.com</span>
+                       </div>
+                       <div className="flex items-center gap-2 justify-center md:justify-start">
+                          <Phone size={18} className="text-green-500 shrink-0" />
+                          <span>0962 320 098</span>
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* 3. QR Code */}
+                 <div className="shrink-0 flex flex-col items-center bg-gray-50 p-3 rounded-2xl border-2 border-dashed border-gray-200">
+                    <img 
+                       src={AUTHOR_INFO.QR_CODE} 
+                       alt="Facebook QR" 
+                       className="w-24 h-24 md:w-28 md:h-28 object-contain rounded-lg"
+                    />
+                    <span className="text-[10px] font-bold text-blue-500 mt-2 uppercase tracking-wide font-heading">Kết nối Facebook</span>
+                 </div>
                </div>
             </div>
 
