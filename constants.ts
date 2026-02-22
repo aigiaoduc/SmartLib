@@ -166,6 +166,8 @@ export const MOCK_WORKSHEETS: Worksheet[] = [
   {
     id: 'ws1',
     title: 'Phiếu bài tập: Ôn tập Ngữ pháp',
+    subject: 'Tiếng Việt',
+    grade: '3',
     questions: [
       {
         id: 'q1',
@@ -195,6 +197,8 @@ export const MOCK_WORKSHEETS: Worksheet[] = [
   {
     id: 'ws2',
     title: 'Phiếu bài tập: Toán đố vui',
+    subject: 'Toán',
+    grade: '2',
     questions: [
       {
         id: 'm1',
@@ -203,6 +207,46 @@ export const MOCK_WORKSHEETS: Worksheet[] = [
         options: ['6', '8', '4', '10'],
         correctAnswer: '6',
         explanation: 'Thực hiện phép nhân trước: 2 x 2 = 4, sau đó cộng 2 = 6.'
+      }
+    ]
+  },
+  {
+    id: 'ws3',
+    title: 'Phiếu bài tập: Từ vựng Tiếng Anh cơ bản',
+    subject: 'Tiếng Anh',
+    grade: '1',
+    questions: [
+      {
+        id: 'e1',
+        type: 'multiple-choice',
+        text: 'What is this animal? (Con mèo)',
+        options: ['Dog', 'Cat', 'Bird', 'Fish'],
+        correctAnswer: 'Cat',
+        explanation: 'Cat là con mèo.'
+      },
+      {
+        id: 'e2',
+        type: 'multiple-choice',
+        text: 'Choose the correct color: Red',
+        options: ['Xanh dương', 'Đỏ', 'Vàng', 'Tím'],
+        correctAnswer: 'Đỏ',
+        explanation: 'Red nghĩa là màu đỏ.'
+      }
+    ]
+  },
+  {
+    id: 'ws4',
+    title: 'Phiếu bài tập: Phép nhân',
+    subject: 'Toán',
+    grade: '3',
+    questions: [
+      {
+        id: 'm2',
+        type: 'multiple-choice',
+        text: '5 x 6 = ?',
+        options: ['30', '25', '35', '40'],
+        correctAnswer: '30',
+        explanation: '5 nhân 6 bằng 30.'
       }
     ]
   }

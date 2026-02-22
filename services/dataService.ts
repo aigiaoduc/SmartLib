@@ -151,6 +151,8 @@ function parseWorksheetTSV(tsvText: string): Worksheet[] {
       worksheetsMap.set(id, {
         id: id,
         title: item['tieu_de_bai_tap'] || item['title'] || 'Bài tập không tên',
+        subject: item['mon'] || item['subject'] || 'Khác',
+        grade: item['lop'] || item['grade'] || '',
         questions: []
       });
     }

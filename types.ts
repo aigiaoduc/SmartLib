@@ -34,6 +34,8 @@ export interface Question {
 export interface Worksheet {
   id: string;
   title: string;
+  subject?: string; // Thêm môn học
+  grade?: string;   // Thêm lớp
   questions: Question[];
 }
 

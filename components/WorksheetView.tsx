@@ -15,6 +15,22 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
   const [showResultModal, setShowResultModal] = useState(false);
   const [isPlayingHeaderAudio, setIsPlayingHeaderAudio] = useState(false);
   
+  const [selectedSubject, setSelectedSubject] = useState<string>('Tất cả');
+  const [selectedGrade, setSelectedGrade] = useState<string>('Tất cả');
+
+  const subjects = ['Tất cả', 'Toán', 'Tiếng Việt', 'Tiếng Anh'];
+  const grades = ['Tất cả', '1', '2', '3', '4', '5'];
+
+  const filteredWorksheets = worksheets.filter(ws => {
+    // Normalize subject comparison
+    const wsSubject = ws.subject ? ws.subject.toLowerCase() : '';
+    const filterSubject = selectedSubject.toLowerCase();
+    
+    const matchSubject = selectedSubject === 'Tất cả' || wsSubject.includes(filterSubject);
+    const matchGrade = selectedGrade === 'Tất cả' || ws.grade === selectedGrade;
+    return matchSubject && matchGrade;
+  });
+
   // Ref để quản lý audio, giúp dừng nhạc khi đóng modal
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -146,9 +162,51 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
            </div>
         </div>
         
+        {/* Filter Section */}
+        <div className="mb-8 flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <label className="block text-gray-700 font-bold mb-2 font-heading">Môn học</label>
+            <div className="flex flex-wrap gap-2">
+              {subjects.map(subject => (
+                <button
+                  key={subject}
+                  onClick={() => setSelectedSubject(subject)}
+                  className={`px-4 py-2 rounded-xl font-bold border-2 transition-all ${
+                    selectedSubject === subject
+                      ? 'bg-red-500 text-white border-red-500 shadow-md transform scale-105'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-red-200 hover:bg-red-50'
+                  }`}
+                >
+                  {subject}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="flex-1">
+            <label className="block text-gray-700 font-bold mb-2 font-heading">Lớp</label>
+            <div className="flex flex-wrap gap-2">
+              {grades.map(grade => (
+                <button
+                  key={grade}
+                  onClick={() => setSelectedGrade(grade)}
+                  className={`px-4 py-2 rounded-xl font-bold border-2 transition-all ${
+                    selectedGrade === grade
+                      ? 'bg-blue-500 text-white border-blue-500 shadow-md transform scale-105'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-blue-200 hover:bg-blue-50'
+                  }`}
+                >
+                  {grade === 'Tất cả' ? 'Tất cả' : `Lớp ${grade}`}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Grid Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {worksheets.map((ws, index) => (
+          {filteredWorksheets.length > 0 ? (
+            filteredWorksheets.map((ws, index) => (
             <div 
               key={ws.id}
               onClick={() => handleSelectWorksheet(ws.id)}
@@ -159,14 +217,26 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
                    <div className="bg-white w-12 h-12 rounded-xl flex items-center justify-center text-red-500 shadow-sm font-black text-xl font-heading border-2 border-red-100">
                       {index + 1}
                    </div>
-                   <span className="bg-red-200 text-red-700 text-[10px] font-black px-2 py-1 rounded-full uppercase font-heading">
-                      {ws.questions.length} câu
-                   </span>
+                   <div className="flex flex-col items-end gap-1">
+                     <span className="bg-red-200 text-red-700 text-[10px] font-black px-2 py-1 rounded-full uppercase font-heading">
+                        {ws.questions.length} câu
+                     </span>
+                     {ws.grade && (
+                       <span className="bg-blue-100 text-blue-600 text-[10px] font-black px-2 py-1 rounded-full uppercase font-heading">
+                          Lớp {ws.grade}
+                       </span>
+                     )}
+                   </div>
                 </div>
                 
                 <h3 className="text-lg font-black text-gray-800 mb-1 leading-tight group-hover:text-red-500 transition-colors font-heading line-clamp-2">
                   {ws.title}
                 </h3>
+                {ws.subject && (
+                  <p className="text-xs text-red-400 font-bold mb-1 font-heading uppercase tracking-wider">
+                    {ws.subject}
+                  </p>
+                )}
                 <p className="text-xs text-gray-500 font-bold mb-3 font-body flex-1">
                   Sẵn sàng chinh phục 100 điểm chưa?
                 </p>
@@ -176,7 +246,18 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          ) : (
+            <div className="col-span-full text-center py-10">
+              <p className="text-gray-500 font-bold text-xl font-heading">Không tìm thấy bài tập nào phù hợp!</p>
+              <button 
+                onClick={() => {setSelectedSubject('Tất cả'); setSelectedGrade('Tất cả');}}
+                className="mt-4 text-red-500 font-bold hover:underline"
+              >
+                Xóa bộ lọc
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
