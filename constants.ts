@@ -6,6 +6,11 @@ import { ResourceItem, Worksheet } from './types';
 // 1. Tạo Google Sheet với các cột: id, Title, Description, Thumbnail Url, Link Url, Author, Grade
 // 2. Vào File -> Share -> Publish to web -> Chọn Sheet -> Chọn định dạng TSV
 // 3. Copy link dán vào bên dưới
+//
+// LƯU Ý VỀ ẢNH BÌA (Cột Thumbnail Url hoặc Anh Bia):
+// - Bạn có thể dùng link ảnh trực tiếp (đuôi .jpg, .png)
+// - Hoặc dùng link chia sẻ Google Drive (chế độ công khai - Anyone with the link)
+// - Hệ thống sẽ tự động chuyển đổi link Google Drive để hiển thị được.
 // ==============================================================================
 
 export const SHEET_URLS = {
@@ -88,7 +93,7 @@ export const MOCK_EBOOKS: ResourceItem[] = [
     id: '1',
     title: 'Dế Mèn Phiêu Lưu Ký',
     description: 'Tác phẩm văn học kinh điển của Tô Hoài.',
-    thumbnailUrl: '', // Để trống để hiển thị bìa sách mặc định (Demo)
+    thumbnailUrl: 'https://picsum.photos/300/400?random=10', // Demo ảnh bìa
     linkUrl: '#',
     author: 'Tô Hoài',
     category: 'Văn học',
@@ -98,7 +103,7 @@ export const MOCK_EBOOKS: ResourceItem[] = [
     id: '2',
     title: 'Nhập môn Lập trình Python',
     description: 'Sách giáo khoa điện tử cơ bản.',
-    thumbnailUrl: '', // Để trống để hiển thị bìa sách mặc định (Demo)
+    thumbnailUrl: 'https://picsum.photos/300/400?random=11', // Demo ảnh bìa
     linkUrl: '#',
     author: 'Bộ Giáo Dục',
     category: 'Tin học',

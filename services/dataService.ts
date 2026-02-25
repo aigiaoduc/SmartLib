@@ -59,6 +59,27 @@ function getYouTubeID(url: string): string | null {
 }
 
 /**
+ * Helper to convert Google Drive shareable link to direct download/view link
+ */
+function convertGoogleDriveLink(url: string): string {
+  if (!url) return '';
+  
+  // Check for standard drive file link: https://drive.google.com/file/d/FILE_ID/view...
+  const fileIdMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileIdMatch && fileIdMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
+  }
+
+  // Check for open?id=FILE_ID format
+  const idParamMatch = url.match(/id=([a-zA-Z0-9_-]+)/);
+  if (idParamMatch && idParamMatch[1]) {
+    return `https://lh3.googleusercontent.com/d/${idParamMatch[1]}`;
+  }
+
+  return url;
+}
+
+/**
  * Parses raw TSV text into ResourceItem objects.
  * Assumes the sheet has headers: id, title, description, thumbnailUrl, linkUrl, category, author, grade (or lop)
  */
@@ -81,7 +102,14 @@ function parseTSV(tsvText: string): ResourceItem[] {
     });
 
     if (item.title) {
-      let finalThumbnail = item.thumbnailurl;
+      // Support multiple header names for thumbnail
+      let finalThumbnail = item.thumbnailurl || item.image || item.cover || item.anh_bia || item.anhbia || '';
+      
+      // Convert Google Drive links if present
+      if (finalThumbnail) {
+        finalThumbnail = convertGoogleDriveLink(finalThumbnail);
+      }
+
       let embedUrl = undefined;
 
       // Special handling for YouTube
