@@ -116,7 +116,7 @@ export const MOCK_LECTURES: ResourceItem[] = [
     id: '1',
     title: 'Bài giảng: Câu cảm thán',
     description: 'Slide bài giảng điện tử môn Ngữ Văn.',
-    thumbnailUrl: 'https://picsum.photos/400/300?random=6',
+    thumbnailUrl: 'https://picsum.photos/400/300?random=6', // Demo ảnh bìa
     linkUrl: '#',
     author: 'Cô Lan',
     date: '2023-10-15',
@@ -126,7 +126,7 @@ export const MOCK_LECTURES: ResourceItem[] = [
     id: '2',
     title: 'Bài giảng: Định luật Newton',
     description: 'Bài giảng Vật lý lớp 10.',
-    thumbnailUrl: 'https://picsum.photos/400/300?random=7',
+    thumbnailUrl: 'https://picsum.photos/400/300?random=7', // Demo ảnh bìa
     linkUrl: '#',
     author: 'Thầy Hùng',
     date: '2023-11-20',
