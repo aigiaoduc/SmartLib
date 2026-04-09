@@ -1,8 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage } from "../types";
 
-// Khởi tạo Gemini API client
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Biến lưu trữ client Gemini (Khởi tạo trễ để tránh lỗi trắng trang khi thiếu key)
+let ai: GoogleGenAI | null = null;
 
 // Cấu hình tính cách cho Capy - Phiên bản tối ưu cho Tiểu Học (Lớp 1 - 5)
 const SYSTEM_PROMPT = `
@@ -51,6 +51,17 @@ HÃY TRẢ LỜI NHƯ MỘT NGƯỜI BẠN LỚN ĐẦY YÊU THƯƠNG VÀ KIÊN 
  */
 export const sendMessageToCapy = async (newMessage: string): Promise<string> => {
   try {
+    if (!ai) {
+      // Hỗ trợ cả biến môi trường của Vercel (VITE_) và môi trường cục bộ
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+      
+      if (!apiKey) {
+        return "Tớ đang thiếu chìa khóa (API Key) để suy nghĩ rồi! Cậu nhờ người lớn thêm VITE_GEMINI_API_KEY vào cài đặt Vercel nhé 🍊💦\n\n---\n🇬🇧 English version:\nI'm missing my thinking key (API Key)! Please ask an adult to add VITE_GEMINI_API_KEY to the Vercel settings 🍊💦";
+      }
+      
+      ai = new GoogleGenAI({ apiKey });
+    }
+
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-lite-preview",
       contents: newMessage,
