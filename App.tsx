@@ -5,32 +5,35 @@ import ResourceGrid from './components/ResourceGrid';
 import WorksheetView from './components/WorksheetView';
 import Chatbot from './components/Chatbot';
 import { ViewState, ResourceItem, Worksheet } from './types';
-import { SHEET_URLS, MOCK_VIDEOS, MOCK_EBOOKS, MOCK_LECTURES, MOCK_WORKSHEETS, MOCK_DOCUMENTS, STICKERS, AUDIO_CLIPS, AUTHOR_INFO } from './constants';
+import { SHEET_URLS, STICKERS, AUDIO_CLIPS, AUTHOR_INFO } from './constants';
 import { fetchSheetData, fetchWorksheetData } from './services/dataService';
-import { Menu, Star, Music, BookOpen, Bot, Volume2, MapPin, Mail, Phone, School } from 'lucide-react';
+import { Menu, Star, Music, BookOpen, Bot, Volume2, MapPin, Mail, Phone, School, Gamepad2 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>(ViewState.HOME);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [videos, setVideos] = useState<ResourceItem[]>(MOCK_VIDEOS);
-  const [books, setBooks] = useState<ResourceItem[]>(MOCK_EBOOKS);
-  const [lectures, setLectures] = useState<ResourceItem[]>(MOCK_LECTURES);
-  const [documents, setDocuments] = useState<ResourceItem[]>(MOCK_DOCUMENTS); // State cho Documents
-  const [worksheets, setWorksheets] = useState<Worksheet[]>(MOCK_WORKSHEETS);
+  const [videos, setVideos] = useState<ResourceItem[]>([]);
+  const [books, setBooks] = useState<ResourceItem[]>([]);
+  const [lectures, setLectures] = useState<ResourceItem[]>([]);
+  const [documents, setDocuments] = useState<ResourceItem[]>([]); // State cho Documents
+  const [games, setGames] = useState<ResourceItem[]>([]); // State cho Games
+  const [worksheets, setWorksheets] = useState<Worksheet[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
-      const fetchedVideos = await fetchSheetData(SHEET_URLS.VIDEOS, MOCK_VIDEOS);
-      const fetchedBooks = await fetchSheetData(SHEET_URLS.EBOOKS, MOCK_EBOOKS);
-      const fetchedLectures = await fetchSheetData(SHEET_URLS.LECTURES, MOCK_LECTURES);
-      const fetchedDocuments = await fetchSheetData(SHEET_URLS.DOCUMENTS, MOCK_DOCUMENTS); // Fetch Documents
-      const fetchedWorksheets = await fetchWorksheetData(SHEET_URLS.WORKSHEETS, MOCK_WORKSHEETS);
+      const fetchedVideos = await fetchSheetData(SHEET_URLS.VIDEOS, []);
+      const fetchedBooks = await fetchSheetData(SHEET_URLS.EBOOKS, []);
+      const fetchedLectures = await fetchSheetData(SHEET_URLS.LECTURES, []);
+      const fetchedDocuments = await fetchSheetData(SHEET_URLS.DOCUMENTS, []); // Fetch Documents
+      const fetchedGames = await fetchSheetData(SHEET_URLS.GAMES, []); // Fetch Games
+      const fetchedWorksheets = await fetchWorksheetData(SHEET_URLS.WORKSHEETS, []);
       
       setVideos(fetchedVideos);
       setBooks(fetchedBooks);
       setLectures(fetchedLectures);
       setDocuments(fetchedDocuments);
+      setGames(fetchedGames);
       setWorksheets(fetchedWorksheets);
     };
     loadData();
@@ -133,6 +136,16 @@ const App: React.FC = () => {
                       <p className="text-purple-400 font-bold text-sm md:text-base leading-snug">Hỏi đáp mọi thứ trên đời cùng Capy.</p>
                    </div>
                </div>
+
+               <div onClick={() => setCurrentView(ViewState.GAMES)} className="group bg-pink-100 p-2 rounded-[2rem] hover:-translate-y-2 transition-transform cursor-pointer shadow-lg border-b-[6px] border-pink-300 relative">
+                   <div className="bg-white p-4 md:p-5 rounded-[1.5rem] h-full flex flex-col items-center text-center border-4 border-pink-100 group-hover:border-pink-200 transition-colors relative z-10 overflow-hidden">
+                      <div className="w-16 h-16 md:w-20 md:h-20 bg-pink-50 rounded-full flex items-center justify-center text-pink-500 mb-3 group-hover:scale-110 transition-transform border-4 border-pink-100">
+                        <Gamepad2 size={32} fill="currentColor" strokeWidth={2.5} />
+                      </div>
+                      <h3 className="text-lg md:text-xl mb-1 text-pink-500 font-heading font-extrabold">Trò Chơi</h3>
+                      <p className="text-pink-400 font-bold text-sm md:text-base leading-snug">Vừa học vừa chơi thật vui.</p>
+                   </div>
+               </div>
             </div>
 
             {/* Author Information Section */}
@@ -229,6 +242,8 @@ const App: React.FC = () => {
         return <ResourceGrid title="Lớp Học Vui Vẻ" items={lectures} type="lecture" />;
       case ViewState.DOCUMENTS: // Render View Documents
         return <ResourceGrid title="Kho Tài Liệu Vàng" items={documents} type="document" />;
+      case ViewState.GAMES:
+        return <ResourceGrid title="Thế Giới Trò Chơi" items={games} type="game" />;
       case ViewState.WORKSHEETS:
         return <WorksheetView worksheets={worksheets} />;
       case ViewState.CHATBOT:

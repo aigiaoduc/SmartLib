@@ -19,6 +19,7 @@ export enum ViewState {
   LECTURES = 'LECTURES',
   WORKSHEETS = 'WORKSHEETS',
   DOCUMENTS = 'DOCUMENTS', // New Feature
+  GAMES = 'GAMES', // New Feature
   CHATBOT = 'CHATBOT',
 }
 

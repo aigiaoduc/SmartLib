@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Worksheet } from '../types';
-import { CheckCircle2, XCircle, ChevronRight, RefreshCw, Trophy, Star, ArrowLeft, Eye, X, Home } from 'lucide-react';
+import { CheckCircle2, XCircle, ChevronRight, RefreshCw, Trophy, Star, ArrowLeft, Eye, X, Home, Search } from 'lucide-react';
 import { STICKERS, AUDIO_CLIPS } from '../constants';
 
 interface WorksheetViewProps {
@@ -17,6 +17,7 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
   
   const [selectedSubject, setSelectedSubject] = useState<string>('Tất cả');
   const [selectedGrade, setSelectedGrade] = useState<string>('Tất cả');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const subjects = ['Tất cả', 'Toán', 'Tiếng Việt', 'Tiếng Anh'];
   const grades = ['Tất cả', '1', '2', '3', '4', '5'];
@@ -28,7 +29,8 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
     
     const matchSubject = selectedSubject === 'Tất cả' || wsSubject.includes(filterSubject);
     const matchGrade = selectedGrade === 'Tất cả' || ws.grade === selectedGrade;
-    return matchSubject && matchGrade;
+    const matchSearch = ws.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchSubject && matchGrade && matchSearch;
   });
 
   // Ref để quản lý audio, giúp dừng nhạc khi đóng modal
@@ -199,6 +201,22 @@ const WorksheetView: React.FC<WorksheetViewProps> = ({ worksheets }) => {
                   {grade === 'Tất cả' ? 'Tất cả' : `Lớp ${grade}`}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="flex-1 md:max-w-xs">
+            <label className="block text-gray-700 font-bold mb-2 font-heading">Tìm kiếm</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search size={20} className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Tìm bài tập..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-gray-200 focus:border-red-400 focus:ring-2 focus:ring-red-100 outline-none transition-all font-body font-bold text-gray-700 bg-white shadow-sm"
+              />
             </div>
           </div>
         </div>

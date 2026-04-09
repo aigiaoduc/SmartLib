@@ -1,17 +1,18 @@
 
 import React, { useState } from 'react';
 import { ResourceItem } from '../types';
-import { Play, BookOpen, Download, ExternalLink, Smile, Star, Filter, MonitorPlay, FileText, Volume2 } from 'lucide-react';
+import { Play, BookOpen, Download, ExternalLink, Smile, Star, Filter, MonitorPlay, FileText, Volume2, Search, Gamepad2 } from 'lucide-react';
 import { STICKERS, AUDIO_CLIPS } from '../constants';
 
 interface ResourceGridProps {
   title: string;
   items: ResourceItem[];
-  type: 'video' | 'book' | 'lecture' | 'document';
+  type: 'video' | 'book' | 'lecture' | 'document' | 'game';
 }
 
 const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
   const [activeTab, setActiveTab] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [isPlaying, setIsPlaying] = useState(false);
 
   const getIcon = () => {
@@ -20,6 +21,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'book': return <BookOpen className="w-8 h-8 text-white" />;
       case 'lecture': return <MonitorPlay className="w-8 h-8 text-white" />;
       case 'document': return <FileText className="w-8 h-8 text-white" />;
+      case 'game': return <Gamepad2 className="w-8 h-8 text-white" />;
     }
   };
 
@@ -29,6 +31,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'book': return 'green';
       case 'lecture': return 'purple';
       case 'document': return 'teal';
+      case 'game': return 'pink';
       default: return 'gray';
     }
   };
@@ -39,6 +42,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'book': return STICKERS.BOOK_DECOR;
       case 'lecture': return STICKERS.LECTURE_DECOR;
       case 'document': return STICKERS.DOC_DECOR;
+      case 'game': return STICKERS.WORKSHEET_SUCCESS; // Tạm dùng sticker này
       default: return null;
     }
   }
@@ -49,6 +53,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'book': return AUDIO_CLIPS.SECTION_BOOK;
       case 'lecture': return AUDIO_CLIPS.SECTION_LECTURE;
       case 'document': return AUDIO_CLIPS.SECTION_DOCUMENT;
+      case 'game': return AUDIO_CLIPS.SECTION_GAME;
       default: return null;
     }
   }
@@ -79,6 +84,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'book': return 'Đọc luôn';
       case 'lecture': return 'Xem bài giảng'; 
       case 'document': return 'Tải tài liệu';
+      case 'game': return 'Chơi ngay';
     }
   };
 
@@ -95,10 +101,12 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
     }
   };
 
-  // Logic lọc item theo tab đang chọn
-  const filteredItems = activeTab === 'all' 
-    ? items 
-    : items.filter(item => item.grade && item.grade.trim() === activeTab);
+  // Logic lọc item theo tab đang chọn và tìm kiếm
+  const filteredItems = items.filter(item => {
+    const matchTab = activeTab === 'all' || (item.grade && item.grade.trim() === activeTab);
+    const matchSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchTab && matchSearch;
+  });
 
   // Danh sách các tab lớp
   const gradeTabs = [
@@ -120,6 +128,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
             case 'book': return 'bg-[#A7F3D0]'; // Green-200
             case 'lecture': return 'bg-[#E9D5FF]'; // Purple-200
             case 'document': return 'bg-[#99F6E4]'; // Teal-200
+            case 'game': return 'bg-[#FBCFE8]'; // Pink-200
             default: return 'bg-[#BFDBFE]'; // Blue-200
         }
     };
@@ -177,6 +186,15 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
              <span className="mt-2 block text-teal-800 font-black text-xs uppercase tracking-wide font-heading">Tài liệu</span>
           </div>
         )}
+
+        {type === 'game' && (
+          <div className="relative z-10 transform group-hover:scale-110 transition-transform duration-300">
+             <div className="w-16 h-16 bg-pink-500 rounded-2xl flex items-center justify-center shadow-lg border-4 border-pink-300">
+                 <Gamepad2 className="text-white" size={32} />
+             </div>
+             <span className="mt-2 block text-pink-800 font-black text-xs uppercase tracking-wide font-heading">Trò chơi</span>
+          </div>
+        )}
       </div>
     );
 
@@ -212,6 +230,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
              {type === 'book' ? <BookOpen size={32} strokeWidth={2.5} /> : 
               type === 'video' ? <Play size={32} strokeWidth={2.5} /> : 
               type === 'document' ? <FileText size={32} strokeWidth={2.5} /> :
+              type === 'game' ? <Gamepad2 size={32} strokeWidth={2.5} /> :
               <MonitorPlay size={32} strokeWidth={2.5} />}
           </div>
           
@@ -245,24 +264,40 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       </div>
 
       {/* Tabs Filter - Grade Selection */}
-      <div className="flex flex-wrap gap-3 mb-8">
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border-2 border-gray-100 text-gray-400 font-bold font-heading mr-2">
-            <Filter size={20} />
-            <span>Lọc theo:</span>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border-2 border-gray-100 text-gray-400 font-bold font-heading mr-2">
+              <Filter size={20} />
+              <span>Lọc theo:</span>
+          </div>
+          {gradeTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-5 py-2.5 rounded-full font-black text-sm md:text-base transition-all transform hover:-translate-y-1 font-heading border-b-4 active:border-b-0 active:translate-y-0.5 ${
+                activeTab === tab.id
+                  ? `bg-${theme}-500 text-white shadow-${theme} border-${theme}-700`
+                  : `bg-white text-gray-500 border-gray-200 hover:border-${theme}-300 hover:text-${theme}-500 hover:bg-${theme}-50`
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-        {gradeTabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-5 py-2.5 rounded-full font-black text-sm md:text-base transition-all transform hover:-translate-y-1 font-heading border-b-4 active:border-b-0 active:translate-y-0.5 ${
-              activeTab === tab.id
-                ? `bg-${theme}-500 text-white shadow-${theme} border-${theme}-700`
-                : `bg-white text-gray-500 border-gray-200 hover:border-${theme}-300 hover:text-${theme}-500 hover:bg-${theme}-50`
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        
+        {/* Search Input */}
+        <div className="relative w-full md:w-64">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={20} className={`text-${theme}-400`} />
+          </div>
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`w-full pl-10 pr-4 py-2.5 rounded-full border-2 border-gray-200 focus:border-${theme}-400 focus:ring-2 focus:ring-${theme}-100 outline-none transition-all font-body font-bold text-gray-700 bg-white shadow-sm`}
+          />
+        </div>
       </div>
 
       {/* Grid Content */}
@@ -323,7 +358,9 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
                           ? 'bg-teal-100 text-teal-600 hover:bg-teal-500 hover:text-white'
                           : type === 'lecture'
                              ? 'bg-purple-100 text-purple-600 hover:bg-purple-500 hover:text-white'
-                             : 'bg-blue-100 text-blue-600 hover:bg-blue-500 hover:text-white'
+                             : type === 'game'
+                               ? 'bg-pink-100 text-pink-600 hover:bg-pink-500 hover:text-white'
+                               : 'bg-blue-100 text-blue-600 hover:bg-blue-500 hover:text-white'
                     }`}
                   >
                     {getButtonText()}

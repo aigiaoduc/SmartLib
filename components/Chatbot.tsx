@@ -175,6 +175,28 @@ const Chatbot: React.FC = () => {
     });
   }
 
+  const speakText = (text: string) => {
+    if (!('speechSynthesis' in window)) {
+      alert("Trình duyệt của bạn không hỗ trợ đọc văn bản.");
+      return;
+    }
+
+    // Hủy bỏ nếu đang đọc
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'vi-VN';
+    
+    // Cố gắng tìm giọng tiếng Việt
+    const voices = window.speechSynthesis.getVoices();
+    const viVoice = voices.find(voice => voice.lang === 'vi-VN' || voice.lang.includes('vi'));
+    if (viVoice) {
+      utterance.voice = viVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+  };
+
   return (
     <div className="h-[calc(100vh-6rem)] md:h-[calc(100vh-4rem)] flex flex-col max-w-4xl mx-auto p-4 relative">
       <div className="bg-white rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden flex flex-col flex-1 ring-4 ring-orange-100">
@@ -222,12 +244,23 @@ const Chatbot: React.FC = () => {
                 </div>
 
                 {/* Bubble */}
-                <div className={`p-5 text-lg font-bold leading-relaxed shadow-sm relative font-body ${
+                <div className={`p-5 text-lg font-bold leading-relaxed shadow-sm relative font-body whitespace-pre-wrap group ${
                   msg.role === 'user' 
                     ? 'bg-blue-500 text-white rounded-[2rem] rounded-br-none' 
                     : 'bg-white text-gray-700 rounded-[2rem] rounded-bl-none border-2 border-orange-100'
                 }`}>
                   {msg.text}
+                  
+                  {/* Nút đọc văn bản (Chỉ hiện cho tin nhắn của bot) */}
+                  {msg.role === 'model' && (
+                    <button
+                      onClick={() => speakText(msg.text)}
+                      className="absolute -right-3 -bottom-3 bg-orange-100 text-orange-500 p-2 rounded-full shadow-md hover:bg-orange-200 hover:scale-110 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      title="Đọc tin nhắn này"
+                    >
+                      <Volume2 size={18} strokeWidth={2.5} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

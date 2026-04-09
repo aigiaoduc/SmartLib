@@ -23,6 +23,8 @@ export const SHEET_URLS = {
   WORKSHEETS: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT4h_9ipPcogvKU-134drfXZQAglTMS2hloPpahvMBl9QGQhOsyN68U3VaD_tPUEAjaQArT6b8g7336/pub?output=tsv',
 
   DOCUMENTS: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEXFDhqKsHxs7U_-giJJ4CChaG8RCML9o-75NsN6AFrXqP9LGq6mFqW5kKNmSYbgUiYHJ2r4T1EX-J/pub?output=tsv', // Đã cập nhật link thật
+
+  GAMES: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRGd09lKDMayRuc_nQoUP22VJOESKxseuTEj2wY6C86H3mzjuGYgGgEQlXyDkPx07TUuxKCkqmRlidv/pub?output=tsv', // Link Google Sheet cho Trò chơi
 };
 
 export const STICKERS = {
@@ -46,6 +48,7 @@ export const AUDIO_CLIPS = {
   SECTION_LECTURE: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765369142/muc_bai_giang_j14v9h.mp3',
   SECTION_WORKSHEET: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765369714/bai_tap_retvja.mp3',
   SECTION_DOCUMENT: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368948/muc_tai_lieu_jsfji4.mp3',
+  SECTION_GAME: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368948/muc_tai_lieu_jsfji4.mp3', // Tạm dùng chung âm thanh
   SECTION_CHATBOT: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368923/muc_chatbot_o0toz6.mp3',
 };
 
