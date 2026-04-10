@@ -31,6 +31,7 @@ const Chatbot: React.FC = () => {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -175,26 +176,105 @@ const Chatbot: React.FC = () => {
     });
   }
 
-  const speakText = (text: string) => {
+  const speakText = async (text: string) => {
+    // 1. Nếu đang phát âm thanh, bấm lại sẽ TẮT
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+
+    // 2. Chỉ lấy phần tiếng Việt
+    const viText = text.split('---')[0].split('🇬🇧')[0].trim();
+
+    // Hàm chia nhỏ văn bản để không bị lỗi giới hạn ký tự của Google TTS
+    const splitTextIntoChunks = (text: string, maxLength: number = 200): string[] => {
+      const chunks: string[] = [];
+      const sentences = text.match(/[^,.:;!?\n]+[,.:;!?\n]*/g) || [text];
+      for (let sentence of sentences) {
+        sentence = sentence.trim();
+        if (!sentence) continue;
+        if (sentence.length <= maxLength) {
+          chunks.push(sentence);
+        } else {
+          const words = sentence.split(' ');
+          let currentChunk = '';
+          for (const word of words) {
+            if ((currentChunk + ' ' + word).length <= maxLength) {
+              currentChunk += (currentChunk ? ' ' : '') + word;
+            } else {
+              if (currentChunk) chunks.push(currentChunk);
+              currentChunk = word;
+            }
+          }
+          if (currentChunk) chunks.push(currentChunk);
+        }
+      }
+      return chunks;
+    };
+
+    // 3. PHƯƠNG ÁN MỚI: Dùng Google Translate TTS API
+    try {
+      const chunks = splitTextIntoChunks(viText, 200);
+      
+      // Tạo 1 thẻ audio duy nhất để tránh lỗi chặn autoplay trên trình duyệt
+      const audio = document.createElement('audio');
+      audio.setAttribute('referrerpolicy', 'no-referrer'); // Quan trọng: Tránh bị Google chặn do CORS/Referer
+      currentAudioRef.current = audio;
+      
+      for (const chunk of chunks) {
+        if (!chunk.trim()) continue;
+        if (!currentAudioRef.current) break; // Nếu user bấm tắt giữa chừng
+        
+        // Dùng client=tw-ob ổn định hơn gtx
+        const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=vi&q=${encodeURIComponent(chunk.trim())}`;
+        audio.src = url;
+        
+        await new Promise((resolve, reject) => {
+          audio.onended = resolve;
+          audio.onerror = reject;
+          audio.play().catch(reject);
+        });
+      }
+      currentAudioRef.current = null;
+      return; // Thành công thì thoát
+    } catch (error) {
+      console.warn("Google TTS API bị lỗi, chuyển sang dùng giọng của máy tính", error);
+      currentAudioRef.current = null;
+    }
+
+    // 4. PHƯƠNG ÁN DỰ PHÒNG: Dùng Web Speech API của trình duyệt
     if (!('speechSynthesis' in window)) {
       alert("Trình duyệt của bạn không hỗ trợ đọc văn bản.");
       return;
     }
 
-    // Hủy bỏ nếu đang đọc
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(viText);
     utterance.lang = 'vi-VN';
     
-    // Cố gắng tìm giọng tiếng Việt
-    const voices = window.speechSynthesis.getVoices();
-    const viVoice = voices.find(voice => voice.lang === 'vi-VN' || voice.lang.includes('vi'));
-    if (viVoice) {
-      utterance.voice = viVoice;
-    }
+    const playVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      // Lọc chính xác giọng tiếng Việt
+      const viVoices = voices.filter(v => v.lang === 'vi-VN' || v.lang === 'vi_VN' || v.lang === 'vi' || v.name.includes('Vietnamese') || v.name.includes('Tiếng Việt'));
+      
+      if (viVoices.length > 0) {
+        // Ưu tiên Google
+        utterance.voice = viVoices.find(v => v.name.includes('Google')) || viVoices[0];
+        window.speechSynthesis.speak(utterance);
+      } else {
+        // TUYỆT ĐỐI KHÔNG ĐỌC NẾU KHÔNG CÓ GIỌNG TIẾNG VIỆT
+        alert("Trình duyệt của bạn chưa có giọng Tiếng Việt. Vui lòng cài đặt thêm ngôn ngữ Tiếng Việt cho thiết bị nhé!");
+      }
+    };
 
-    window.speechSynthesis.speak(utterance);
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.addEventListener('voiceschanged', playVoice, { once: true });
+    } else {
+      playVoice();
+    }
   };
 
   return (
