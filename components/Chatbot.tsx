@@ -72,6 +72,17 @@ const Chatbot: React.FC = () => {
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error', event.error);
         setIsListening(false);
+        
+        // Xử lý các lỗi phổ biến của Web Speech API
+        if (event.error === 'network') {
+          alert("Lỗi mạng: Trình duyệt không thể kết nối với máy chủ nhận diện giọng nói. Vui lòng kiểm tra lại Internet hoặc thử gõ phím nhé! 🌐");
+        } else if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+          alert("Trình duyệt đang chặn Micro. Cậu hãy nhấn vào biểu tượng ổ khóa trên thanh địa chỉ và cấp quyền Micro cho trang web nhé! 🎤");
+        } else if (event.error === 'no-speech') {
+          // Bỏ qua lỗi không có giọng nói (chỉ là do người dùng chưa nói gì)
+        } else {
+          alert(`Lỗi micro (${event.error}). Cậu thử tải lại trang xem sao nhé!`);
+        }
       };
 
       recognitionRef.current.onend = () => {
