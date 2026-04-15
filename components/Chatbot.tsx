@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, User, Sparkles, Clock, Hourglass, Mic, MicOff, Volume2 } from 'lucide-react';
+import { Send, User, Sparkles, Clock, Hourglass, Mic, MicOff, Volume2, X } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { sendMessageToCapy } from '../services/geminiService';
 import { STICKERS, AUDIO_CLIPS } from '../constants';
@@ -28,6 +28,8 @@ const Chatbot: React.FC = () => {
   const [isListening, setIsListening] = useState(false); // Trạng thái đang nghe
   const [isPlayingAvatarAudio, setIsPlayingAvatarAudio] = useState(false); // Trạng thái avatar nói (Header)
   const [isPlayingMascotAudio, setIsPlayingMascotAudio] = useState(false); // Trạng thái mascot nói (Bottom right)
+  const [showTTSModal, setShowTTSModal] = useState(false); // Trạng thái hiện modal lỗi TTS
+  const [ttsErrorType, setTtsErrorType] = useState<'not_supported' | 'missing_voice'>('missing_voice'); // Loại lỗi TTS
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -187,8 +189,12 @@ const Chatbot: React.FC = () => {
       window.speechSynthesis.cancel();
     }
 
-    // 2. Chỉ lấy phần tiếng Việt
-    const viText = text.split('---')[0].split('🇬🇧')[0].trim();
+    // 2. Lấy toàn bộ văn bản (do không còn cấu trúc --- 🇬🇧 nữa)
+    const cleanText = text.trim();
+
+    // 3. Nhận diện ngôn ngữ đơn giản (nếu có dấu tiếng Việt -> Tiếng Việt, ngược lại -> Tiếng Anh)
+    const isVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(cleanText);
+    const langCode = isVietnamese ? 'vi' : 'en';
 
     // Hàm chia nhỏ văn bản để không bị lỗi giới hạn ký tự của Google TTS
     const splitTextIntoChunks = (text: string, maxLength: number = 200): string[] => {
@@ -216,9 +222,9 @@ const Chatbot: React.FC = () => {
       return chunks;
     };
 
-    // 3. PHƯƠNG ÁN MỚI: Dùng Google Translate TTS API
+    // 4. PHƯƠNG ÁN MỚI: Dùng Google Translate TTS API
     try {
-      const chunks = splitTextIntoChunks(viText, 200);
+      const chunks = splitTextIntoChunks(cleanText, 200);
       
       // Tạo 1 thẻ audio duy nhất để tránh lỗi chặn autoplay trên trình duyệt
       const audio = document.createElement('audio');
@@ -229,8 +235,8 @@ const Chatbot: React.FC = () => {
         if (!chunk.trim()) continue;
         if (!currentAudioRef.current) break; // Nếu user bấm tắt giữa chừng
         
-        // Dùng client=tw-ob ổn định hơn gtx
-        const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=vi&q=${encodeURIComponent(chunk.trim())}`;
+        // Dùng client=tw-ob ổn định hơn gtx. Truyền đúng mã ngôn ngữ (vi hoặc en)
+        const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${langCode}&q=${encodeURIComponent(chunk.trim())}`;
         audio.src = url;
         
         await new Promise((resolve, reject) => {
@@ -246,27 +252,41 @@ const Chatbot: React.FC = () => {
       currentAudioRef.current = null;
     }
 
-    // 4. PHƯƠNG ÁN DỰ PHÒNG: Dùng Web Speech API của trình duyệt
+    // 5. PHƯƠNG ÁN DỰ PHÒNG: Dùng Web Speech API của trình duyệt
     if (!('speechSynthesis' in window)) {
-      alert("Trình duyệt của bạn không hỗ trợ đọc văn bản.");
+      setTtsErrorType('not_supported');
+      setShowTTSModal(true);
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(viText);
-    utterance.lang = 'vi-VN';
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = isVietnamese ? 'vi-VN' : 'en-US';
     
     const playVoice = () => {
       const voices = window.speechSynthesis.getVoices();
-      // Lọc chính xác giọng tiếng Việt
-      const viVoices = voices.filter(v => v.lang === 'vi-VN' || v.lang === 'vi_VN' || v.lang === 'vi' || v.name.includes('Vietnamese') || v.name.includes('Tiếng Việt'));
       
-      if (viVoices.length > 0) {
-        // Ưu tiên Google
-        utterance.voice = viVoices.find(v => v.name.includes('Google')) || viVoices[0];
+      let selectedVoice;
+      if (isVietnamese) {
+        // Lọc chính xác giọng tiếng Việt
+        const viVoices = voices.filter(v => v.lang === 'vi-VN' || v.lang === 'vi_VN' || v.lang === 'vi' || v.name.includes('Vietnamese') || v.name.includes('Tiếng Việt'));
+        if (viVoices.length > 0) {
+          selectedVoice = viVoices.find(v => v.name.includes('Google')) || viVoices[0];
+        }
+      } else {
+        // Lọc giọng tiếng Anh
+        const enVoices = voices.filter(v => v.lang.startsWith('en'));
+        if (enVoices.length > 0) {
+          selectedVoice = enVoices.find(v => v.name.includes('Google')) || enVoices[0];
+        }
+      }
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
         window.speechSynthesis.speak(utterance);
       } else {
-        // TUYỆT ĐỐI KHÔNG ĐỌC NẾU KHÔNG CÓ GIỌNG TIẾNG VIỆT
-        alert("Trình duyệt của bạn chưa có giọng Tiếng Việt. Vui lòng cài đặt thêm ngôn ngữ Tiếng Việt cho thiết bị nhé!");
+        // TUYỆT ĐỐI KHÔNG ĐỌC NẾU KHÔNG CÓ GIỌNG PHÙ HỢP
+        setTtsErrorType('missing_voice');
+        setShowTTSModal(true);
       }
     };
 
@@ -474,6 +494,53 @@ const Chatbot: React.FC = () => {
            )}
          </div>
       </div>
+
+      {/* --- TTS ERROR MODAL --- */}
+      {showTTSModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] shadow-2xl max-w-md w-full p-6 md:p-8 relative border-4 border-orange-200 animate-[bounce_0.3s_ease-out]">
+            <button 
+              onClick={() => setShowTTSModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-orange-500 transition-colors bg-gray-100 hover:bg-orange-100 rounded-full p-1"
+            >
+              <X size={24} strokeWidth={3} />
+            </button>
+            
+            <div className="flex flex-col items-center text-center mt-2">
+              <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mb-4 border-4 border-orange-200">
+                <img src={STICKERS.CHAT_BOT} alt="Capy" className="w-20 h-20 object-cover grayscale opacity-80" />
+              </div>
+              <h3 className="text-2xl font-black text-orange-600 font-heading mb-3">Ôi không! Capy bị mất giọng 🍊💦</h3>
+              
+              {ttsErrorType === 'not_supported' ? (
+                <p className="text-gray-600 font-body font-bold mb-4">
+                  Trình duyệt của cậu quá cũ và không hỗ trợ tính năng đọc văn bản. Hãy thử dùng Google Chrome phiên bản mới nhất nhé!
+                </p>
+              ) : (
+                <div className="text-left w-full space-y-4">
+                  <p className="text-gray-600 font-body font-bold text-sm text-center">
+                    Máy tính của cậu chưa có giọng Tiếng Việt. Rất tiếc là trang web <span className="text-red-500">không thể tự cài đặt</span> giúp cậu vì lý do bảo mật của trình duyệt.
+                  </p>
+                  <div className="bg-orange-50 p-4 rounded-2xl border-2 border-orange-100">
+                    <p className="font-heading font-bold text-orange-800 mb-2 text-lg">Cậu nhờ người lớn cài theo cách này nhé:</p>
+                    <ul className="text-sm font-body font-bold text-gray-600 space-y-3 list-disc pl-5">
+                      <li><strong className="text-blue-600">Máy tính Windows:</strong> Mở Cài đặt (Settings) &gt; Time & Language &gt; Speech &gt; Add voices &gt; Tìm và thêm "Tiếng Việt".</li>
+                      <li><strong className="text-gray-800">Macbook / iPad:</strong> Mở Cài đặt (Settings) &gt; Accessibility &gt; Spoken Content &gt; System Voice &gt; Thêm "Tiếng Việt".</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+              
+              <button 
+                onClick={() => setShowTTSModal(false)}
+                className="mt-6 bg-orange-500 text-white font-heading font-black text-lg px-8 py-3 rounded-full hover:bg-orange-600 hover:scale-105 transition-all shadow-[0_4px_0_rgb(194,65,12)] active:shadow-none active:translate-y-1"
+              >
+                Tớ hiểu rồi!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
