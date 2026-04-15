@@ -52,7 +52,8 @@ export const sendMessageToCapy = async (newMessage: string): Promise<string> => 
   try {
     if (!ai) {
       // Hỗ trợ cả biến môi trường của Vercel (VITE_) và môi trường cục bộ
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+      // Tránh lỗi "process is not defined" trên trình duyệt khi build bằng Vite
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : undefined);
       
       if (!apiKey) {
         return "Tớ đang thiếu chìa khóa (API Key) để suy nghĩ rồi! Cậu nhờ người lớn thêm VITE_GEMINI_API_KEY vào cài đặt Vercel nhé 🍊💦\n\n---\n🇬🇧 English version:\nI'm missing my thinking key (API Key)! Please ask an adult to add VITE_GEMINI_API_KEY to the Vercel settings 🍊💦";
