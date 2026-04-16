@@ -42,7 +42,7 @@ const ResourceGrid: React.FC<ResourceGridProps> = ({ title, items, type }) => {
       case 'book': return STICKERS.BOOK_DECOR;
       case 'lecture': return STICKERS.LECTURE_DECOR;
       case 'document': return STICKERS.DOC_DECOR;
-      case 'game': return STICKERS.WORKSHEET_SUCCESS; // Tạm dùng sticker này
+      case 'game': return STICKERS.GAME_DECOR;
       default: return null;
     }
   }

@@ -36,6 +36,7 @@ export const STICKERS = {
   BOOK_DECOR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765035740/3_r2dn7v.png', // Đọc sách
   LECTURE_DECOR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765035740/4_srjptt.png', // Bài giảng
   DOC_DECOR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765035740/3_r2dn7v.png', // Tài liệu (Dùng tạm ảnh sách nhưng sẽ xoay trong CSS)
+  GAME_DECOR: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1776327259/Gemini_Generated_Image_lpnjvnlpnjvnlpnj-Photoroom_wzzgun.png', // Trò chơi
   HOME_TALKING_MASCOT: 'https://res.cloudinary.com/dejnvixvn/image/upload/v1765107578/Thi%E1%BA%BFt_k%E1%BA%BF_ch%C6%B0a_c%C3%B3_t%C3%AAn_4_cbfgnw.png' // Nhân vật nói ở trang chủ
 };
 
@@ -48,7 +49,7 @@ export const AUDIO_CLIPS = {
   SECTION_LECTURE: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765369142/muc_bai_giang_j14v9h.mp3',
   SECTION_WORKSHEET: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765369714/bai_tap_retvja.mp3',
   SECTION_DOCUMENT: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368948/muc_tai_lieu_jsfji4.mp3',
-  SECTION_GAME: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368948/muc_tai_lieu_jsfji4.mp3', // Tạm dùng chung âm thanh
+  SECTION_GAME: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1776327414/mp3-output-ttsfree_dot_com_mvux3f.mp3',
   SECTION_CHATBOT: 'https://res.cloudinary.com/dejnvixvn/video/upload/v1765368923/muc_chatbot_o0toz6.mp3',
 };
 

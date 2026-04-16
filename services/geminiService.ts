@@ -63,7 +63,7 @@ export const sendMessageToCapy = async (newMessage: string): Promise<string> => 
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.1-flash-lite",
       contents: newMessage,
       config: {
         systemInstruction: SYSTEM_PROMPT,
