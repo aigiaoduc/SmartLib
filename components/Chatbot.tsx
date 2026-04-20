@@ -200,11 +200,15 @@ const Chatbot: React.FC = () => {
       window.speechSynthesis.cancel();
     }
 
-    // 2. Lấy toàn bộ văn bản (do không còn cấu trúc --- 🇬🇧 nữa)
+    // 2. Lấy toàn bộ văn bản
     const cleanText = text.trim();
 
-    // 3. Nhận diện ngôn ngữ đơn giản (nếu có dấu tiếng Việt -> Tiếng Việt, ngược lại -> Tiếng Anh)
-    const isVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(cleanText);
+    // 3. Nhận diện ngôn ngữ
+    // Lược bỏ tên của bot khỏi văn bản trước khi đếm ký tự tiếng Việt để tránh nhận diện nhầm
+    const textForDetection = cleanText.replace(/Capy Thông Thái/gi, '').replace(/Thông Thái/gi, '').replace(/Smart Capy/gi, '').replace(/Capy/gi, '');
+    
+    // Đếm số lượng ký tự có dấu tiếng Việt (chỉ lấy các ký tự đặc trưng của tiếng Việt)
+    const isVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(textForDetection);
     const langCode = isVietnamese ? 'vi' : 'en';
 
     // Hàm chia nhỏ văn bản để không bị lỗi giới hạn ký tự của Google TTS
